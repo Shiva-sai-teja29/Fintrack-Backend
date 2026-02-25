@@ -1,0 +1,17 @@
+package com.financeTracking.Fintrack.AuthService.Repository;
+
+import com.financeTracking.Fintrack.AuthService.entities.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByUsername(String username);
+    Optional<User> findByEmail(String email);
+
+    boolean existsByUsername(String newUsername);
+
+    boolean existsByEmail(String newEmail);
+}
