@@ -20,6 +20,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 @Service
@@ -127,5 +130,34 @@ public class TransactionService {
             throw new UnauthorizedException("User not authenticated");
         }
         return (User) auth.getPrincipal();
+    }
+
+    public List<TransactionDto> getTransactionsByMonthRange(String startMonth, String endMonth) {
+        User user = extractUser();
+        YearMonth start = YearMonth.parse(startMonth);
+        YearMonth end = YearMonth.parse(endMonth);
+
+        if (start.isAfter(end)) {
+            throw new IllegalArgumentException("Start month cannot be after end month");
+        }
+
+        LocalDate startDate = start.atDay(1);
+        LocalDate endDate = end.atEndOfMonth();
+
+        return transactionRepo.findByUserIdAndDateBetween(user.getId(), startDate, endDate)
+                .stream()
+                .map(this::convertToDTO)
+                .toList();
+    }
+
+    private TransactionDto convertToDTO(Transactions transaction) {
+        TransactionDto dto = new TransactionDto();
+
+        dto.setDescription(transaction.getDescription());
+        dto.setAmount(transaction.getAmount());
+        dto.setCategory(transaction.getCategory());
+        dto.setDate(transaction.getDate());
+        dto.setType(transaction.getType());
+        return dto;
     }
 }

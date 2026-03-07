@@ -4,16 +4,21 @@ import com.financeTracking.Fintrack.AuthService.entities.User;
 import com.financeTracking.Fintrack.TransactionService.Model.TransactionDto;
 import com.financeTracking.Fintrack.TransactionService.Model.TransactionResponse;
 import com.financeTracking.Fintrack.TransactionService.Model.Transactions;
+import com.financeTracking.Fintrack.TransactionService.Service.DownloadService;
 import com.financeTracking.Fintrack.TransactionService.Service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 
 @RestController
@@ -22,6 +27,8 @@ public class TransactionsController {
 
     @Autowired
     public TransactionService transactionService;
+    @Autowired
+    public DownloadService downloadService;
 
     public TransactionsController(TransactionService transactionService) {
         this.transactionService = transactionService;
@@ -64,6 +71,40 @@ public class TransactionsController {
     public ResponseEntity<String> updateTransaction(@PathVariable Long id){
         String transactions = transactionService.deleteTransaction(id);
         return new ResponseEntity<>(transactions,HttpStatus.OK);
+    }
+
+    @GetMapping("/transactions/export/csv")
+    public ResponseEntity<InputStreamResource> exportCSV(
+            @RequestParam String startMonth,
+            @RequestParam String endMonth
+    ){
+        List<TransactionDto> data = transactionService.getTransactionsByMonthRange(startMonth,endMonth);
+        ByteArrayInputStream csv = downloadService.generateCsv(data);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=transactions.csv");
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.parseMediaType("text/csv"))
+                .body(new InputStreamResource(csv));
+    }
+
+    @GetMapping("/transactions/export/excel")
+    public ResponseEntity<InputStreamResource> exportExcel(
+            @RequestParam String startMonth,
+            @RequestParam String endMonth) throws Exception {
+        List<TransactionDto> data =
+                transactionService.getTransactionsByMonthRange(startMonth, endMonth);
+
+        ByteArrayInputStream excel = downloadService.generateExcel(data);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=transactions.xlsx");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(new InputStreamResource(excel));
     }
 
     public User extractUser() {

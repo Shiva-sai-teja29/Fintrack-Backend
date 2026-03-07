@@ -33,7 +33,6 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
-
     private final RefreshTokenRepository refreshTokenRepository;
 
     public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository,
@@ -43,7 +42,6 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.refreshTokenService = refreshTokenService;
-        //this.tokenBlacklistService = tokenBlacklistService;
         this.refreshTokenRepository = refreshTokenRepository;
     }
     @PostMapping("/login")
@@ -51,7 +49,7 @@ public class AuthController {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
         );
-// Load user
+        // Load user
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -72,6 +70,32 @@ public class AuthController {
         return ResponseEntity.ok(resp);
     }
 
+    @PostMapping("/login-email")
+    public ResponseEntity<?> loginWithEmail(@Valid @RequestBody AuthEmailRequest request) {
+        // Load user
+        System.out.println(request.getEmail());
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(user.getUsername(), request.getPassword())
+        );
+
+        // Generate ACCESS token
+        String accessToken = jwtService.generateToken(
+                user.getUsername(),
+                user.getRoles().stream().toList()
+        );
+
+        // Generate REFRESH token
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
+
+        // Prepare response
+        AuthResponse resp = new AuthResponse();
+        resp.setToken(accessToken);
+        resp.setRefreshToken(refreshToken.getToken());
+
+        return ResponseEntity.ok(resp);
+    }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
@@ -154,6 +178,12 @@ public class AuthController {
             return ResponseEntity.ok().body("Log out successful!");
         }
         return ResponseEntity.badRequest().body("Refresh token not found!");
+    }
+
+    @GetMapping("/check-username")
+    public ResponseEntity<?> checkUsername(@RequestParam String username) {
+        boolean exists = userRepository.existsByUsername(username);
+        return ResponseEntity.ok(Map.of("available", !exists));
     }
 
 

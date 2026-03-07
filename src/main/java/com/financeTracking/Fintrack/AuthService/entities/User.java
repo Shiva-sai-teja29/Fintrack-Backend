@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.financeTracking.Fintrack.AnalyticsService.model.Budget;
 import com.financeTracking.Fintrack.TransactionService.Model.Transactions;
 import com.financeTracking.Fintrack.User.UserPreference.UserPreferences;
+import com.financeTracking.Fintrack.User.entity.PasswordResetToken;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -68,6 +68,9 @@ public class User implements UserDetails {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private PasswordResetToken passwordResetToken;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
