@@ -84,6 +84,7 @@ public class TransactionService {
         transaction.setType(transac.getType());
         transaction.setUser(user);
         transaction.setHasReceipt(false);
+        transaction.setPaymentType(transac.getPaymentType());
 
         List<Transactions> transactions = user.getTransactions();
         transactions.add(transaction);
@@ -109,6 +110,7 @@ public class TransactionService {
         existingTransaction.setDate(transac.getDate());
         existingTransaction.setType(transac.getType());
         existingTransaction.setDescription(transac.getDescription());
+        existingTransaction.setPaymentType(transac.getPaymentType());
 
         return transactionRepo.save(existingTransaction);
     }
@@ -158,6 +160,7 @@ public class TransactionService {
         dto.setCategory(transaction.getCategory());
         dto.setDate(transaction.getDate());
         dto.setType(transaction.getType());
+        dto.setPaymentType(transaction.getPaymentType());
         return dto;
     }
 }

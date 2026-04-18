@@ -40,6 +40,10 @@ public class Transactions implements Serializable {
     private String receiptPath;
     private boolean hasReceipt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = true)
+    private PaymentType paymentType;
+
     public Transactions() {
     }
 
@@ -51,17 +55,7 @@ public class Transactions implements Serializable {
         this.receiptPath = receiptPath;
     }
 
-    public Transactions(Long id, User user, String category, Double amount, LocalDate date, TransactionType type, String description) {
-        this.id = id;
-        this.user = user;
-        this.category = category;
-        this.amount = amount;
-        this.date = date;
-        this.type = type;
-        this.description = description;
-    }
-
-    public Transactions(Long id, User user, String category, Double amount, LocalDate date, TransactionType type, String description, String receiptPath, boolean hasReceipt) {
+    public Transactions(Long id, User user, String category, Double amount, LocalDate date, TransactionType type, String description, String receiptPath, boolean hasReceipt, PaymentType paymentType) {
         this.id = id;
         this.user = user;
         this.category = category;
@@ -71,6 +65,15 @@ public class Transactions implements Serializable {
         this.description = description;
         this.receiptPath = receiptPath;
         this.hasReceipt = hasReceipt;
+        this.paymentType = paymentType;
+    }
+
+    public PaymentType getPaymentType() {
+        return paymentType;
+    }
+
+    public void setPaymentType(PaymentType paymentType) {
+        this.paymentType = paymentType;
     }
 
     public boolean isHasReceipt() {

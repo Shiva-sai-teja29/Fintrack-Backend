@@ -14,6 +14,16 @@ public class TransactionDto {
 
     private String description;
 
+    private PaymentType paymentType;
+
+    public PaymentType getPaymentType() {
+        return paymentType;
+    }
+
+    public void setPaymentType(PaymentType paymentType) {
+        this.paymentType = paymentType;
+    }
+
     public String getCategory() {
         return category;
     }

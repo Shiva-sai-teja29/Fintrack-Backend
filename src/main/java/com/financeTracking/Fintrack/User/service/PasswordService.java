@@ -9,21 +9,15 @@ import com.financeTracking.Fintrack.email.EmailService;
 import jakarta.mail.MessagingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class PasswordService {
-
-    private static final Logger logger = LoggerFactory.getLogger(PasswordService.class);
-
 
     private final UserRepository userRepository;
     private final PasswordResetTokenRepo tokenRepo;
@@ -55,16 +49,15 @@ public class PasswordService {
         passwordResetToken.setExpiryDate(LocalDateTime.now().plusMinutes(10));
         passwordResetToken.setCreatedAt(LocalDateTime.now());
 
-        try {
-
-            tokenRepo.save(passwordResetToken);
-
-            emailService.sendResetLink(mail, token);
-        }catch (Exception e){
-            throw new RuntimeException("You might have been updated your password is last 24 hours, " +
-                    "So wait for reset password for 24 hours after your last password reset");
+        boolean sent = emailService.sendResetLink(mail, token);
+        if (sent){
+            try {
+                tokenRepo.save(passwordResetToken);
+            }catch (Exception e){
+                throw new RuntimeException("You might have been updated your password is last 24 hours, " +
+                        "So wait for reset password for 24 hours after your last password reset");
+            }
         }
-
     }
 
     public void resetPassword(String mail, String token, String newPassword) {
@@ -88,12 +81,5 @@ public class PasswordService {
         userRepository.save(user);
 
         tokenRepo.deleteById(resetToken.getId());
-    }
-
-    @Scheduled(cron = "0 0 * * * *")  // every hour
-    @Transactional
-    public void deleteExpiredTokens() {
-        tokenRepo.deleteByExpiryDateBefore(LocalDateTime.now());
-        logger.info("Deleted the old tokens");
     }
 }

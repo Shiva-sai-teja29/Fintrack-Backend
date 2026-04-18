@@ -1,7 +1,7 @@
 package com.financeTracking.Fintrack.TransactionService.Model;
 
 
-enum TransactionType {
+public enum TransactionType {
     INCOME,
     EXPENSE
 }

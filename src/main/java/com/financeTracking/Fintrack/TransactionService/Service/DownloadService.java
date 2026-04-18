@@ -21,11 +21,11 @@ public class DownloadService {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         PrintWriter writer = new PrintWriter(out);
         // Header
-        writer.println("S.no,Category,Amount,Date,Type,Description");
+        writer.println("S.no,Category,Amount,Date,Type,Description,PaymentType");
         // Data
         int serial = 1;
         for (TransactionDto t : data) {
-            writer.println(serial + "," + t.getCategory() + "," + t.getAmount() + "," +t.getDate() + "," +t.getType() + "," +t.getDescription());
+            writer.println(serial + "," + t.getCategory() + "," + t.getAmount() + "," +t.getDate() + "," +t.getType() + "," +t.getDescription()+","+t.getPaymentType());
             serial++;
         }
         writer.flush();
@@ -44,6 +44,7 @@ public class DownloadService {
         headerRow.createCell(3).setCellValue("Date");
         headerRow.createCell(4).setCellValue("Type");
         headerRow.createCell(5).setCellValue("Description");
+        headerRow.createCell(6).setCellValue("PaymentType");
 
         int rowIdx = 1;
         for (TransactionDto t : data) {
@@ -54,6 +55,7 @@ public class DownloadService {
             row.createCell(3).setCellValue(t.getDate());
             row.createCell(4).setCellValue(String.valueOf(t.getType()));
             row.createCell(5).setCellValue(t.getDescription());
+            row.createCell(6).setCellValue(String.valueOf(t.getPaymentType()));
             rowIdx++;
         }
 

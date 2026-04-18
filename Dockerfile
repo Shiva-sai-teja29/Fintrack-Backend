@@ -19,7 +19,7 @@ FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 
 # Copy JAR from build stage
-COPY --from=build /app/target/Fintrack-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=build /app/target/*.jar app.jar
 
 # Expose application port
 EXPOSE 8081

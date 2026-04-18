@@ -5,11 +5,17 @@ import com.financeTracking.Fintrack.AuthService.Repository.RefreshTokenRepositor
 import com.financeTracking.Fintrack.AuthService.Repository.UserRepository;
 import com.financeTracking.Fintrack.AuthService.entities.RefreshToken;
 import com.financeTracking.Fintrack.AuthService.entities.User;
+import com.financeTracking.Fintrack.User.service.PasswordService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -49,17 +55,4 @@ public class RefreshTokenService {
         }
         return token;
     }
-
-//    @Transactional
-//    public String deleteById(TokenRefreshRequest request) {
-////        User user = userRepository.findById(userId).orElseThrow();
-////        return refreshTokenRepository.deleteByUserId(userId);
-//        String requestRefreshToken = request.getRefreshToken();
-//        if (findByToken(requestRefreshToken).isPresent()){
-//            Long id = findByToken(requestRefreshToken).get().getId();
-//            refreshTokenRepository.deleteById(id);
-//            return "Logout Successful";
-//        }
-//        return "Unsuccessful";
-//    }
 }

@@ -8,7 +8,6 @@ public class AuthRequest {
     @NotBlank
     private String username;
 
-
     @NotBlank
     private String password;
 

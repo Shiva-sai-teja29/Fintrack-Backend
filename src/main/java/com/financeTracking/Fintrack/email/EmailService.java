@@ -2,6 +2,8 @@ package com.financeTracking.Fintrack.email;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -13,6 +15,8 @@ import java.time.LocalDateTime;
 
 @Service
 public class EmailService {
+
+    private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
     private final JavaMailSender mailSender;
     private final SpringTemplateEngine templateEngine;
@@ -26,7 +30,7 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String fromMailId;
 
-    public void sendResetLink(String mail, String token) throws MessagingException {
+    public boolean sendResetLink(String mail, String token) throws MessagingException {
 
         Context context = new Context();
         context.setVariable("appName", "Finance Tracking App");
@@ -42,9 +46,17 @@ public class EmailService {
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
         helper.setTo(mail);
-        helper.setSubject("Finance Tracking App Password/Username reset");
+        helper.setFrom(fromMailId);
+        helper.setSubject("Finance Tracking App Password reset");
         helper.setText(htmlContent, true);
 
-        mailSender.send(message);
+        try {
+            mailSender.send(message);
+            logger.info("Mail sent to: {}",mail );
+            return true;
+        }catch (Exception e) {
+            logger.error("Failed to send email: {}", e.getMessage());
+            return false;
+        }
     }
 }
